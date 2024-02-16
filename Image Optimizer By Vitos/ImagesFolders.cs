@@ -12,7 +12,7 @@
                 if (!IsBackupFolder(file) && !IsWebpExtension(extension) && IsImageExtension(extension))
                     imagePaths.Add(file);
             }
-            if (imagePaths.Count == 0) throw new Exception($"No image found anywhere inside {currentDirectory}.");
+            if (imagePaths.Count == 0) throw new Exception($"No image found anywhere inside {currentDirectory}");
             return imagePaths;
         }
 
@@ -21,7 +21,7 @@
 
         private static bool IsImageExtension(string extension)
         {
-            string[] imageExtensions = { ".jpg", ".jpeg", ".png", ".gif", ".bmp", ".tiff" };
+            string[] imageExtensions = [".jpg", ".jpeg", ".png", ".gif", ".bmp", ".tiff"];
             return Array.IndexOf(imageExtensions, extension) != -1;
         }
 

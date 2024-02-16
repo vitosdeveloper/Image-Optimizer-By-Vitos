@@ -1,4 +1,6 @@
 ﻿using SixLabors.ImageSharp;
+using SixLabors.ImageSharp.Formats.Webp;
+using SixLabors.ImageSharp.Processing;
 
 namespace Image_Optimizer_By_Vitos
 {
@@ -23,7 +25,7 @@ namespace Image_Optimizer_By_Vitos
                 log.ProgressBar();
                 string backupPathWithFileName = $"./imageOptimizerBackup{imageFolder.Replace(CurrentDirectory, "")}";
                 string? backupPath = Path.GetDirectoryName(backupPathWithFileName);
-                if (string.IsNullOrWhiteSpace(backupPath)) break;
+                if (string.IsNullOrWhiteSpace(backupPath)) continue;
                 if (!Directory.Exists(backupPath)) Directory.CreateDirectory(backupPath);
                 if (!File.Exists(backupPathWithFileName)) File.Copy(imageFolder, backupPathWithFileName);
             }
@@ -41,9 +43,13 @@ namespace Image_Optimizer_By_Vitos
                 log.ProgressBar();
                 string fileExtension = Path.GetExtension(imageFolder);
                 string newFilePath = imageFolder.Replace(fileExtension, ".webp");
-                if (File.Exists(newFilePath)) break;
+                if (File.Exists(newFilePath)) continue;
                 Image image = Image.Load(imageFolder);
-                image.SaveAsWebp(newFilePath);
+                WebpEncoder encoder = new() { Quality = 75, };
+                int maxResolution = 1080;
+                if (image.Width > maxResolution || image.Height > maxResolution)
+                    image.Mutate(x => x.Resize(new ResizeOptions { Size = new Size(maxResolution, maxResolution), Mode = ResizeMode.Max }));
+                image.SaveAsWebp(newFilePath, encoder);
             }
             Console.Clear();
             return this;
@@ -60,7 +66,7 @@ namespace Image_Optimizer_By_Vitos
                 if (File.Exists(imageFolder)) File.Delete(imageFolder);
             }
             Console.Clear();
-            Log.ShowCompleted();
+            Log.ShowCompleted(ImagesFolder.Count);
             return this;
         }
     }

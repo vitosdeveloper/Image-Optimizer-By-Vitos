@@ -60,21 +60,18 @@ namespace Image_Optimizer_By_Vitos
             Log.FullProgressBar();
         }
 
-        public static void ShowCompleted()
+        public static void ShowCompleted(int totalImages)
         {
             ShowCompletedFormating();
             Console.WriteLine("All previous images have been deleted");
             Log.FullProgressBar();
+            Console.WriteLine($"\n{totalImages} images were formated to .webp!");
             Console.WriteLine("\nThank you for choosing this App!");
             Console.WriteLine("\nCheck me out:");
             Console.WriteLine("Portfolio: https://vitosdeveloper.vercel.app/");
             Console.WriteLine("Github: https://github.com/vitosnatios");
             Console.WriteLine("Linkedin: https://www.linkedin.com/in/vitosnatios/");
-            Console.WriteLine("\nV   V  III   TTT  OOO   SSS ");
-            Console.WriteLine("V   V   I     T  O   O S    ");
-            Console.WriteLine("V   V   I     T  O   O  SSS ");
-            Console.WriteLine(" V V    I     T  O   O     S");
-            Console.WriteLine("  V    III    T   OOO   SSS ");
+            Console.WriteLine("       %%%%%%%%%%%%%%              \r\n     %%%%%%%%%%%%%%%%%%            \r\n   %%%%%%%%%%%%%%%%%%%@%@          \r\n  %%%%%%%%%%%%%%%%%%%%%@@@         \r\n *%%%%%%%%%%%%%%%%%%@@@@@@         \r\n %%%%%%-%%%%%%%%%%%%@@@@@@         \r\n  %%%%%-%%%%+%%+%%@@@@@@@@         \r\n  %%%%%-%++#%%%%+%*@@@@*+@         \r\n  *#@+%%*=+++#%#@++#@%*+@@#        \r\n      =---+-+====+=#@@%@@@@        \r\n      ------=======@@@@@ @         \r\n        ==+=======*@@@@            \r\n          =====+**%@@@@@**         \r\n          *=*@@**@@@@@@@#**        \r\n        ===**@@@@@@@@@%****##      \r\n      ======*@@@@@@@*****#*##++    \r\n     #=====++@@@@@#*******+++++++  \r\n    +++#+++++@@@@#***##++++++*##++ \r\n   ++++++++++@@@+#++*+++++++++++++ ");
             Console.ReadLine();
         }
     }
