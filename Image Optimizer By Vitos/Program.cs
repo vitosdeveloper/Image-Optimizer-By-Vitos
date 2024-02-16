@@ -1,7 +1,4 @@
-﻿using SixLabors.ImageSharp;
-using SixLabors.ImageSharp.Processing;
-
-namespace ImageOptimizerByVitos
+﻿namespace Image_Optimizer_By_Vitos
 {
     internal class Program
     {
@@ -10,7 +7,8 @@ namespace ImageOptimizerByVitos
             //string imageFolder = @"C:/teste/image.jpg";
             //var image = Image.Load(imageFolder);
             //image.SaveAsWebp(@"C:/teste/imageWebp.webp");
-            Console.WriteLine("Hello, world!");
+            var imagesFolder = ImagesFolders.GetImagePaths();
+            Console.WriteLine($"numero de imagens: {imagesFolder.Count()}");
         }
     }
 }
