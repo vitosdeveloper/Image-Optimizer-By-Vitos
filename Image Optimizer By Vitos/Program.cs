@@ -1,4 +1,6 @@
-﻿namespace Image_Optimizer_By_Vitos
+﻿using System.Text;
+
+namespace Image_Optimizer_By_Vitos
 {
     internal class Program
     {
@@ -6,13 +8,11 @@
         {
             try
             {
-                var teste = "Iniciando";
-                Console.WriteLine(teste);
                 string currentDirectory = Directory.GetCurrentDirectory();
                 var imagesFolder = ImagesFolders.GetImagePaths(currentDirectory);
                 ImagesFormater.Backup(currentDirectory, imagesFolder);
                 ImagesFormater.FormatAll(imagesFolder);
-                ImagesFormater.RemoveOriginalImages();
+                ImagesFormater.RemoveOriginalImages(imagesFolder);
             }
             catch (Exception e)
             {

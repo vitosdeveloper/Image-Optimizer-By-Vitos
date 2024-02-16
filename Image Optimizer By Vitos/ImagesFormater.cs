@@ -31,6 +31,12 @@ namespace Image_Optimizer_By_Vitos
                 image.SaveAsWebp(newFilePath);
             }
         }
-        public static void RemoveOriginalImages() { }
+        public static void RemoveOriginalImages(List<string> imagesFolder)
+        {
+            foreach (string imageFolder in imagesFolder)
+            {
+                if (File.Exists(imageFolder)) File.Delete(imageFolder);
+            }
+        }
     }
 }
