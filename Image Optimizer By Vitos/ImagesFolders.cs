@@ -2,29 +2,22 @@
 {
     internal class ImagesFolders
     {
-        public static List<string> GetImagePaths()
+        public static List<string> GetImagePaths(string currentDirectory)
         {
-            string currentDirectory = Directory.GetCurrentDirectory();
             List<string> imagePaths = [];
-            try
+            string[] files = Directory.GetFiles(currentDirectory, "*", SearchOption.AllDirectories);
+            foreach (var file in files)
             {
-                string[] files = Directory.GetFiles(currentDirectory, "*", SearchOption.AllDirectories);
-                foreach (var file in files)
-                {
-                    string extension = Path.GetExtension(file);
-                    if (!IsWebpExtension(extension) && IsImageExtension(extension))
-                    {
-                        imagePaths.Add(file);
-                    };
-                }
+                string extension = Path.GetExtension(file);
+                if (!IsBackupFolder(file) && !IsWebpExtension(extension) && IsImageExtension(extension))
+                    imagePaths.Add(file);
             }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"Error trying to get image folders: {ex.Message}");
-            }
-
+            if (imagePaths.Count == 0) throw new Exception($"No image found anywhere inside {currentDirectory}.");
             return imagePaths;
         }
+
+        private static bool IsBackupFolder(string file) => file.Contains("imageOptimizerBackup");
+
 
         private static bool IsImageExtension(string extension)
         {
@@ -32,9 +25,7 @@
             return Array.IndexOf(imageExtensions, extension) != -1;
         }
 
-        private static bool IsWebpExtension(string extension)
-        {
-            return extension == ".webp";
-        }
+        private static bool IsWebpExtension(string extension) => extension == ".webp";
+
     }
 }

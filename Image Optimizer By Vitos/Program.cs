@@ -4,11 +4,20 @@
     {
         static void Main(string[] args)
         {
-            //string imageFolder = @"C:/teste/image.jpg";
-            //var image = Image.Load(imageFolder);
-            //image.SaveAsWebp(@"C:/teste/imageWebp.webp");
-            var imagesFolder = ImagesFolders.GetImagePaths();
-            Console.WriteLine($"numero de imagens: {imagesFolder.Count()}");
+            try
+            {
+                var teste = "Iniciando";
+                Console.WriteLine(teste);
+                string currentDirectory = Directory.GetCurrentDirectory();
+                var imagesFolder = ImagesFolders.GetImagePaths(currentDirectory);
+                ImagesFormater.Backup(currentDirectory, imagesFolder);
+                ImagesFormater.FormatAll(imagesFolder);
+                ImagesFormater.RemoveOriginalImages();
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.Message);
+            }
         }
     }
 }
