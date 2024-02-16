@@ -1,42 +1,55 @@
-﻿
-using SixLabors.ImageSharp;
+﻿using SixLabors.ImageSharp;
 
 namespace Image_Optimizer_By_Vitos
 {
     internal class ImagesFormater
     {
-        public static void Backup(string currentDirectory, List<string> imagesFolder)
+        private readonly string CurrentDirectory;
+        private readonly List<string> ImagesFolder;
+
+        public ImagesFormater()
         {
-            foreach (string imageFolder in imagesFolder)
+            CurrentDirectory = Directory.GetCurrentDirectory();
+            ImagesFolder = ImagesFolders.GetImagePaths(CurrentDirectory);
+        }
+
+        public ImagesFormater Backup()
+        {
+            foreach (string imageFolder in ImagesFolder)
             {
-                string backupPathWithFileName = $"./imageOptimizerBackup{imageFolder.Replace(currentDirectory, "")}";
+                string backupPathWithFileName = $"./imageOptimizerBackup{imageFolder.Replace(CurrentDirectory, "")}";
                 string? backupPath = Path.GetDirectoryName(backupPathWithFileName);
                 if (string.IsNullOrWhiteSpace(backupPath)) break;
                 if (!Directory.Exists(backupPath)) Directory.CreateDirectory(backupPath);
                 if (!File.Exists(backupPathWithFileName)) File.Copy(imageFolder, backupPathWithFileName);
             }
+            return this;
         }
-        public static void FormatAll(List<string> imagesFolder)
+
+        public ImagesFormater FormatAll()
         {
-            foreach (string imageFolder in imagesFolder)
+            foreach (string imageFolder in ImagesFolder)
             {
                 string fileExtension = Path.GetExtension(imageFolder);
                 string newFilePath = imageFolder.Replace(fileExtension, ".webp");
                 if (File.Exists(newFilePath))
                 {
-                    //adicionar contagem do loading aq, caso implemente barra de load
+                    // Add loading count here if implementing a loading bar
                     break;
                 };
                 Image image = Image.Load(imageFolder);
                 image.SaveAsWebp(newFilePath);
             }
+            return this;
         }
-        public static void RemoveOriginalImages(List<string> imagesFolder)
+
+        public ImagesFormater RemoveOriginalImages()
         {
-            foreach (string imageFolder in imagesFolder)
+            foreach (string imageFolder in ImagesFolder)
             {
                 if (File.Exists(imageFolder)) File.Delete(imageFolder);
             }
+            return this;
         }
     }
 }
