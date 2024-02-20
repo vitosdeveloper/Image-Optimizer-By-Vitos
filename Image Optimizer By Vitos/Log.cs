@@ -8,6 +8,7 @@ namespace Image_Optimizer_By_Vitos
         private int Progress;
         private readonly string InitialLog;
         private readonly int Stage;
+        private bool ShowProgress = true;
 
         public Log(string initialLog, int progressLength, int stage)
         {
@@ -18,57 +19,83 @@ namespace Image_Optimizer_By_Vitos
             Stage = stage;
         }
 
+        public static char ShowResizeOptions()
+        {
+            char pressedKey;
+            List<char> optionsList = ['1', '2', '3', '4', '5', '6'];
+            void ResolutionOptions(bool invalid = false)
+            {
+                Console.Clear();
+                Console.WriteLine("Do you want to set both horizontal and vertical maximum sizes for the images?\n\n" +
+                "1 - No, maintain their original resolutions.\n" +
+                "2 - 480px\n" +
+                "3 - 720px\n" +
+                "4 - 1080px\n" +
+                "5 - 1440px\n" +
+                "6 - 2160px");
+                if (invalid) Console.WriteLine("invalid key.");
+                pressedKey = Console.ReadKey().KeyChar;
+            };
+            ResolutionOptions();
+            while (!optionsList.Contains(pressedKey) && pressedKey != '0')
+                ResolutionOptions(true);
+            Console.Clear();
+            return pressedKey;
+        }
+
         public void ProgressBar()
         {
-            int Floor(double num) => (int)Math.Floor(num);
-            int percentage = Floor((double)Progress / ProgressLength * 100);
-            string bar = $"[          ] {percentage}%";
-            AddProgressBar(bar);
-            for (int i = Floor(percentage / 10); i > 0; i--) bar = AddProgressBar(bar);
-            if (Stage == 1) ShowCompletedBackup();
-            if (Stage == 2) ShowCompletedFormating();
-            Console.WriteLine(InitialLog);
-            Console.WriteLine(bar);
+            if (ShowProgress)
+            {
+                ShowProgress = false;
+                Progress++;
+                static int Floor(double num) => (int)Math.Floor(num);
+                int percentage = Floor((double)Progress / ProgressLength * 100);
+                string oldInfo = "";
+                if (Stage == 0) Console.Clear();
+                if (Stage == 1) oldInfo += $"{ShowCompletedBackup(true)}\n";
+                if (Stage == 2) oldInfo += $"{ShowCompletedFormating(true)}\n";
+                string currentBar = $"\n[          ] {percentage}%";
+                for (int i = Floor(percentage / 10); i > 0; i--) currentBar = AddProgressBar(currentBar);
+                Console.WriteLine($"{oldInfo}{InitialLog}{currentBar}");
+                ShowProgress = true;
+            }
         }
 
         public static string AddProgressBar(string oldBar)
         {
-            Console.Clear();
             StringBuilder stringBuilder = new(oldBar);
             int indexOfFirstSpace = oldBar.IndexOf(' ');
             if (indexOfFirstSpace != -1) stringBuilder[indexOfFirstSpace] = '█';
             return stringBuilder.ToString();
         }
 
-        public void ProgressByOne() => Progress++;
+        public static string FullProgressBar() => "\n[██████████] 100%";
 
-        public static void FullProgressBar() => Console.WriteLine("[██████████] 100%");
-
-        public static void ShowCompletedBackup()
+        public static string ShowCompletedBackup(bool clear = false)
         {
-            Console.WriteLine("Backup completed");
-            Log.FullProgressBar();
+            if (clear) Console.Clear();
+            return $"Backup completed{FullProgressBar()}";
         }
 
-        public static void ShowCompletedFormating()
+        public static string ShowCompletedFormating(bool clear = false)
         {
-            ShowCompletedBackup();
-            Console.WriteLine("All images have been formated");
-            Log.FullProgressBar();
+            if (clear) Console.Clear();
+            return $"{ShowCompletedBackup()}\nAll images have been formated{FullProgressBar()}";
         }
 
         public static void ShowCompleted(int totalImages)
         {
-            ShowCompletedFormating();
-            Console.WriteLine("All previous images have been deleted");
-            Log.FullProgressBar();
-            Console.WriteLine($"\n{totalImages} images were formated to .webp!");
-            Console.WriteLine("\nThank you for choosing this App!");
-            Console.WriteLine("\nCheck me out:");
-            Console.WriteLine("Portfolio: https://vitosdeveloper.vercel.app/");
-            Console.WriteLine("Github: https://github.com/vitosnatios");
-            Console.WriteLine("Linkedin: https://www.linkedin.com/in/vitosnatios/");
-            Console.WriteLine("       %%%%%%%%%%%%%%              \r\n     %%%%%%%%%%%%%%%%%%            \r\n   %%%%%%%%%%%%%%%%%%%@%@          \r\n  %%%%%%%%%%%%%%%%%%%%%@@@         \r\n *%%%%%%%%%%%%%%%%%%@@@@@@         \r\n %%%%%%-%%%%%%%%%%%%@@@@@@         \r\n  %%%%%-%%%%+%%+%%@@@@@@@@         \r\n  %%%%%-%++#%%%%+%*@@@@*+@         \r\n  *#@+%%*=+++#%#@++#@%*+@@#        \r\n      =---+-+====+=#@@%@@@@        \r\n      ------=======@@@@@ @         \r\n        ==+=======*@@@@            \r\n          =====+**%@@@@@**         \r\n          *=*@@**@@@@@@@#**        \r\n        ===**@@@@@@@@@%****##      \r\n      ======*@@@@@@@*****#*##++    \r\n     #=====++@@@@@#*******+++++++  \r\n    +++#+++++@@@@#***##++++++*##++ \r\n   ++++++++++@@@+#++*+++++++++++++ ");
+            ;
+            Console.WriteLine($"{ShowCompletedFormating(true)}\nAll previous images have been deleted" +
+                $"{FullProgressBar()}" +
+                $"\n\n{totalImages} images were formated to .webp!" +
+                "\nThank you for choosing this App!" +
+                "\nCheck me out:" +
+                "\nPortfolio: https://vitosdeveloper.vercel.app/" +
+                "\nGithub: https://github.com/vitosnatios" +
+                "Linkedin: https://www.linkedin.com/in/vitosnatios/" +
+                "\n\n       %%%%%%%%%%%%%%              \r\n     %%%%%%%%%%%%%%%%%%            \r\n   %%%%%%%%%%%%%%%%%%%@%@          \r\n  %%%%%%%%%%%%%%%%%%%%%@@@         \r\n *%%%%%%%%%%%%%%%%%%@@@@@@         \r\n %%%%%%-%%%%%%%%%%%%@@@@@@         \r\n  %%%%%-%%%%+%%+%%@@@@@@@@         \r\n  %%%%%-%++#%%%%+%*@@@@*+@         \r\n  *#@+%%*=+++#%#@++#@%*+@@#        \r\n      =---+-+====+=#@@%@@@@        \r\n      ------=======@@@@@ @         \r\n        ==+=======*@@@@            \r\n          =====+**%@@@@@**         \r\n          *=*@@**@@@@@@@#**        \r\n        ===**@@@@@@@@@%****##      \r\n      ======*@@@@@@@*****#*##++    \r\n     #=====++@@@@@#*******+++++++  \r\n    +++#+++++@@@@#***##++++++*##++ \r\n   ++++++++++@@@+#++*+++++++++++++ \"");
             Console.ReadLine();
         }
     }

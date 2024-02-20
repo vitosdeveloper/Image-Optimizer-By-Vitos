@@ -1,5 +1,4 @@
-﻿using System.Linq;
-using SixLabors.ImageSharp;
+﻿using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.Formats.Webp;
 using SixLabors.ImageSharp.Processing;
 
@@ -9,6 +8,7 @@ namespace Image_Optimizer_By_Vitos
     {
         private readonly string CurrentDirectory;
         private readonly List<string> ImagesFolder;
+        private int MaxResolution;
 
         public ImagesFormater()
         {
@@ -22,7 +22,6 @@ namespace Image_Optimizer_By_Vitos
             log.ProgressBar();
             foreach (string imageFolder in ImagesFolder)
             {
-                log.ProgressByOne();
                 log.ProgressBar();
                 string backupPathWithFileName = $"./imageOptimizerBackup{imageFolder.Replace(CurrentDirectory, "")}";
                 string? backupPath = Path.GetDirectoryName(backupPathWithFileName);
@@ -34,49 +33,54 @@ namespace Image_Optimizer_By_Vitos
             return this;
         }
 
+        public ImagesFormater AskResolution()
+        {
+            char resizeValue = Log.ShowResizeOptions();
+            MaxResolution = resizeValue switch
+            {
+                '2' => 480,
+                '3' => 720,
+                '4' => 1080,
+                '5' => 1440,
+                '6' => 2160,
+                _ => 0,
+            };
+            return this;
+        }
+
         private async Task ProcessImageAsync(string imageFolder, Log log)
         {
-            log.ProgressByOne();
-            log.ProgressBar();
             string fileExtension = Path.GetExtension(imageFolder);
             string newFilePath = imageFolder.Replace(fileExtension, ".webp");
             if (File.Exists(newFilePath)) return;
             using (Image image = await Image.LoadAsync(imageFolder))
             {
+
                 WebpEncoder encoder = new() { Quality = 75 };
-                int maxResolution = 1080;
-                if (image.Width > maxResolution || image.Height > maxResolution)
-                    await Task.Run(() =>
+                if (MaxResolution != 0 && (image.Width > MaxResolution || image.Height > MaxResolution))
+                {
+                    image.Mutate((x) =>
                     {
-                        image.Mutate(x => x.Resize(new ResizeOptions { Size = new Size(maxResolution, maxResolution), Mode = ResizeMode.Max }));
+                        x.Resize(new ResizeOptions { Size = new Size(MaxResolution, MaxResolution), Mode = ResizeMode.Max });
+                        x.AutoOrient();
                     });
-                await Task.Run(() => image.SaveAsWebpAsync(newFilePath, encoder));
+                }
+                await Task.Run(() =>
+                {
+                    image.SaveAsWebpAsync(newFilePath, encoder);
+                    log.ProgressBar();
+                });
             }
         }
 
-        public async Task FormatAll()
+        public async Task<ImagesFormater> FormatAll()
         {
             Log log = new("Formating Images", ImagesFolder.Count, 1);
             log.ProgressBar();
-            //foreach (string imageFolder in ImagesFolder)
-            //{
-            //    log.ProgressByOne();
-            //    log.ProgressBar();
-            //    string fileExtension = Path.GetExtension(imageFolder);
-            //    string newFilePath = imageFolder.Replace(fileExtension, ".webp");
-            //    if (File.Exists(newFilePath)) continue;
-            //    Image image = Image.Load(imageFolder);
-            //    WebpEncoder encoder = new() { Quality = 75, };
-            //    int maxResolution = 1080;
-            //    if (image.Width > maxResolution || image.Height > maxResolution)
-            //        image.Mutate(x => x.Resize(new ResizeOptions { Size = new Size(maxResolution, maxResolution), Mode = ResizeMode.Max }));
-            //    image.SaveAsWebp(newFilePath, encoder);
-            //}
-            //Console.Clear();
-            var processingTasks = ImagesFolder.Select(imageFolder => ProcessImageAsync(imageFolder, log)).ToList();
+            var processingTasks = ImagesFolder.Select(imageFolder => ProcessImageAsync(imageFolder, log));
             await Task.WhenAll(processingTasks);
             Console.Clear();
-            //return this;
+            return this;
         }
 
         public ImagesFormater RemoveOriginalImages()
@@ -85,11 +89,9 @@ namespace Image_Optimizer_By_Vitos
             log.ProgressBar();
             foreach (string imageFolder in ImagesFolder)
             {
-                log.ProgressByOne();
                 log.ProgressBar();
                 if (File.Exists(imageFolder)) File.Delete(imageFolder);
             }
-            Console.Clear();
             Log.ShowCompleted(ImagesFolder.Count);
             return this;
         }
