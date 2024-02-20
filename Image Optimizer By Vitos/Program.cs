@@ -2,14 +2,14 @@
 {
     internal class Program
     {
-        static void Main(string[] args)
+        static async Task Main(string[] args)
         {
             try
             {
-                new ImagesFormater()
-                .Backup()
-                .FormatAll()
-                .RemoveOriginalImages();
+                ImagesFormater imagesFormater = new();
+                imagesFormater.Backup();
+                await imagesFormater.FormatAll();
+                imagesFormater.RemoveOriginalImages();
             }
             catch (Exception e)
             {

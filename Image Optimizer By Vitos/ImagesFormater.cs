@@ -1,4 +1,5 @@
-﻿using SixLabors.ImageSharp;
+﻿using System.Linq;
+using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.Formats.Webp;
 using SixLabors.ImageSharp.Processing;
 
@@ -33,26 +34,49 @@ namespace Image_Optimizer_By_Vitos
             return this;
         }
 
-        public ImagesFormater FormatAll()
+        private async Task ProcessImageAsync(string imageFolder, Log log)
+        {
+            log.ProgressByOne();
+            log.ProgressBar();
+            string fileExtension = Path.GetExtension(imageFolder);
+            string newFilePath = imageFolder.Replace(fileExtension, ".webp");
+            if (File.Exists(newFilePath)) return;
+            using (Image image = await Image.LoadAsync(imageFolder))
+            {
+                WebpEncoder encoder = new() { Quality = 75 };
+                int maxResolution = 1080;
+                if (image.Width > maxResolution || image.Height > maxResolution)
+                    await Task.Run(() =>
+                    {
+                        image.Mutate(x => x.Resize(new ResizeOptions { Size = new Size(maxResolution, maxResolution), Mode = ResizeMode.Max }));
+                    });
+                await Task.Run(() => image.SaveAsWebpAsync(newFilePath, encoder));
+            }
+        }
+
+        public async Task FormatAll()
         {
             Log log = new("Formating Images", ImagesFolder.Count, 1);
             log.ProgressBar();
-            foreach (string imageFolder in ImagesFolder)
-            {
-                log.ProgressByOne();
-                log.ProgressBar();
-                string fileExtension = Path.GetExtension(imageFolder);
-                string newFilePath = imageFolder.Replace(fileExtension, ".webp");
-                if (File.Exists(newFilePath)) continue;
-                Image image = Image.Load(imageFolder);
-                WebpEncoder encoder = new() { Quality = 75, };
-                int maxResolution = 1080;
-                if (image.Width > maxResolution || image.Height > maxResolution)
-                    image.Mutate(x => x.Resize(new ResizeOptions { Size = new Size(maxResolution, maxResolution), Mode = ResizeMode.Max }));
-                image.SaveAsWebp(newFilePath, encoder);
-            }
+            //foreach (string imageFolder in ImagesFolder)
+            //{
+            //    log.ProgressByOne();
+            //    log.ProgressBar();
+            //    string fileExtension = Path.GetExtension(imageFolder);
+            //    string newFilePath = imageFolder.Replace(fileExtension, ".webp");
+            //    if (File.Exists(newFilePath)) continue;
+            //    Image image = Image.Load(imageFolder);
+            //    WebpEncoder encoder = new() { Quality = 75, };
+            //    int maxResolution = 1080;
+            //    if (image.Width > maxResolution || image.Height > maxResolution)
+            //        image.Mutate(x => x.Resize(new ResizeOptions { Size = new Size(maxResolution, maxResolution), Mode = ResizeMode.Max }));
+            //    image.SaveAsWebp(newFilePath, encoder);
+            //}
+            //Console.Clear();
+            var processingTasks = ImagesFolder.Select(imageFolder => ProcessImageAsync(imageFolder, log)).ToList();
+            await Task.WhenAll(processingTasks);
             Console.Clear();
-            return this;
+            //return this;
         }
 
         public ImagesFormater RemoveOriginalImages()
