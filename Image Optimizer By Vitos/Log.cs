@@ -1,4 +1,5 @@
-﻿using System.Text;
+﻿using System;
+using System.Diagnostics;
 
 namespace Image_Optimizer_By_Vitos
 {
@@ -9,6 +10,10 @@ namespace Image_Optimizer_By_Vitos
         private readonly string InitialLog;
         private readonly int Stage;
         private bool ShowProgress = true;
+        static readonly string FullProgressBar = "\n[██████████] 100%";
+        private int NumOfBars = 0;
+        string CurrentBar = "\n[          ]";
+        double LastPercentage = 0;
 
         public Log(string initialLog, int progressLength, int stage)
         {
@@ -49,47 +54,44 @@ namespace Image_Optimizer_By_Vitos
             {
                 ShowProgress = false;
                 Progress++;
-                static int Floor(double num) => (int)Math.Floor(num);
-                int percentage = Floor((double)Progress / ProgressLength * 100);
                 string oldInfo = "";
-                if (Stage == 0) Console.Clear();
-                if (Stage == 1) oldInfo += $"{ShowCompletedBackup(true)}\n";
-                if (Stage == 2) oldInfo += $"{ShowCompletedFormating(true)}\n";
-                string currentBar = $"\n[          ] {percentage}%";
-                for (int i = Floor(percentage / 10); i > 0; i--) currentBar = AddProgressBar(currentBar);
-                Console.WriteLine($"{oldInfo}{InitialLog}{currentBar}");
+                if (Stage == 1) oldInfo += $"{ShowCompletedBackup()}\n";
+                if (Stage == 2) oldInfo += $"{ShowCompletedFormating()}\n";
+                double lastPercentage = Math.Floor((double)Progress / ProgressLength * 100);
+                double currentNumOfBars = Math.Ceiling(LastPercentage / 10);
+                if (NumOfBars < currentNumOfBars)
+                {
+                    NumOfBars++;
+                    CurrentBar = $"{CurrentBar[..(NumOfBars + 1)]}█{CurrentBar[(NumOfBars + 2)..]}";
+                }
+                if (lastPercentage > LastPercentage)
+                {
+                    LastPercentage = lastPercentage;
+                    Console.Clear();
+                    Console.WriteLine($"{oldInfo}{InitialLog}{CurrentBar} {LastPercentage}%");
+                    ShowProgress = true;
+                    return;
+                }
                 ShowProgress = true;
             }
         }
 
-        public static string AddProgressBar(string oldBar)
+        public static string ShowCompletedBackup()
         {
-            StringBuilder stringBuilder = new(oldBar);
-            int indexOfFirstSpace = oldBar.IndexOf(' ');
-            if (indexOfFirstSpace != -1) stringBuilder[indexOfFirstSpace] = '█';
-            return stringBuilder.ToString();
+            return $"Backup completed{FullProgressBar}";
         }
 
-        public static string FullProgressBar() => "\n[██████████] 100%";
-
-        public static string ShowCompletedBackup(bool clear = false)
+        public static string ShowCompletedFormating()
         {
-            if (clear) Console.Clear();
-            return $"Backup completed{FullProgressBar()}";
+            return $"{ShowCompletedBackup()}\nAll images have been formated{FullProgressBar}";
         }
 
-        public static string ShowCompletedFormating(bool clear = false)
+        public static void ShowCompleted(int totalImages, Stopwatch timer)
         {
-            if (clear) Console.Clear();
-            return $"{ShowCompletedBackup()}\nAll images have been formated{FullProgressBar()}";
-        }
-
-        public static void ShowCompleted(int totalImages)
-        {
-            ;
-            Console.WriteLine($"{ShowCompletedFormating(true)}\nAll previous images have been deleted" +
-                $"{FullProgressBar()}" +
-                $"\n\n{totalImages} images were formated to .webp!" +
+            Console.Clear();
+            Console.WriteLine($"{ShowCompletedFormating()}\nAll previous images have been deleted" +
+                $"{FullProgressBar}" +
+                $"\n\n{totalImages} images were formated to .webp in {timer.Elapsed.Minutes.ToString().PadLeft(2, '0')}:{timer.Elapsed.Seconds.ToString().PadLeft(2, '0')} min! " +
                 "\nThank you for choosing this App!" +
                 "\nCheck me out:" +
                 "\nPortfolio: https://vitosdeveloper.vercel.app/" +

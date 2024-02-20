@@ -1,4 +1,5 @@
-﻿using SixLabors.ImageSharp;
+﻿using System.Diagnostics;
+using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.Formats.Webp;
 using SixLabors.ImageSharp.Processing;
 
@@ -9,7 +10,7 @@ namespace Image_Optimizer_By_Vitos
         private readonly string CurrentDirectory;
         private readonly List<string> ImagesFolder;
         private int MaxResolution;
-
+        readonly Stopwatch Timer = new();
         public ImagesFormater()
         {
             CurrentDirectory = Directory.GetCurrentDirectory();
@@ -18,6 +19,7 @@ namespace Image_Optimizer_By_Vitos
 
         public ImagesFormater Backup()
         {
+            Timer.Start();
             Log log = new("Initializing Backup", ImagesFolder.Count, 0);
             foreach (string imageFolder in ImagesFolder)
             {
@@ -47,34 +49,33 @@ namespace Image_Optimizer_By_Vitos
             return this;
         }
 
-        private async Task ProcessImageAsync(string imageFolder, Log log)
+        public ImagesFormater FormatAll()
+        {
+            Log log = new("Formating Images", ImagesFolder.Count, 1);
+            Parallel.ForEach(ImagesFolder, imageFolder => ProcessImage(imageFolder, log));
+            Console.Clear();
+            return this;
+        }
+
+        private void ProcessImage(string imageFolder, Log log)
         {
             string fileExtension = Path.GetExtension(imageFolder);
             string newFilePath = imageFolder.Replace(fileExtension, ".webp");
             if (File.Exists(newFilePath)) return;
-            using (Image image = await Image.LoadAsync(imageFolder))
+            using (Image image = Image.Load(imageFolder))
             {
                 WebpEncoder encoder = new() { Quality = 75 };
                 if (MaxResolution != 0 && (image.Width > MaxResolution || image.Height > MaxResolution))
                 {
-                    image.Mutate((x) =>
-                    {
-                        x.Resize(new ResizeOptions { Size = new Size(MaxResolution, MaxResolution), Mode = ResizeMode.Max });
-                        x.AutoOrient();
-                    });
+                    image.Mutate(x =>
+                   {
+                       x.Resize(new ResizeOptions { Size = new Size(MaxResolution, MaxResolution), Mode = ResizeMode.Max });
+                       x.AutoOrient();
+                   });
                 }
-                await image.SaveAsWebpAsync(newFilePath, encoder);
+                image.SaveAsWebp(newFilePath, encoder);
                 log.ProgressBar();
             }
-        }
-
-        public async Task<ImagesFormater> FormatAll()
-        {
-            Log log = new("Formating Images", ImagesFolder.Count, 1);
-            var processingTasks = ImagesFolder.Select(imageFolder => ProcessImageAsync(imageFolder, log));
-            await Task.WhenAll(processingTasks);
-            Console.Clear();
-            return this;
         }
 
         public ImagesFormater RemoveOriginalImages()
@@ -85,7 +86,8 @@ namespace Image_Optimizer_By_Vitos
                 log.ProgressBar();
                 if (File.Exists(imageFolder)) File.Delete(imageFolder);
             }
-            Log.ShowCompleted(ImagesFolder.Count);
+            Timer.Stop();
+            Log.ShowCompleted(ImagesFolder.Count, Timer);
             return this;
         }
     }

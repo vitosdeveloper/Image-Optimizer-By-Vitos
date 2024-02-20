@@ -8,15 +8,11 @@ namespace Image_Optimizer_By_Vitos
         {
             try
             {
-                Stopwatch stopwatch = new();
-                stopwatch.Start();
                 new ImagesFormater()
                 .AskResolution()
                 .Backup()
-                .FormatAll().Result
+                .FormatAll()
                 .RemoveOriginalImages();
-                stopwatch.Stop();
-                Console.WriteLine($"{stopwatch.Elapsed.Minutes} min and {stopwatch.Elapsed.Seconds} sec");
             }
             catch (Exception e)
             {
