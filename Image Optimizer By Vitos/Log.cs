@@ -20,7 +20,8 @@ namespace Image_Optimizer_By_Vitos
 
         public void ProgressBar()
         {
-            int percentage = GetPercentage();
+            int Floor(double num) => (int)Math.Floor(num);
+            int percentage = Floor((double)Progress / ProgressLength * 100);
             string bar = $"[          ] {percentage}%";
             AddProgressBar(bar);
             for (int i = Floor(percentage / 10); i > 0; i--) bar = AddProgressBar(bar);
@@ -40,10 +41,6 @@ namespace Image_Optimizer_By_Vitos
         }
 
         public void ProgressByOne() => Progress++;
-
-        private int GetPercentage() => Floor((double)Progress / ProgressLength * 100);
-
-        private static int Floor(double num) => (int)Math.Floor(num);
 
         public static void FullProgressBar() => Console.WriteLine("[██████████] 100%");
 

@@ -21,7 +21,7 @@
 
         private static bool IsImageExtension(string extension)
         {
-            string[] imageExtensions = [".jpg", ".jpeg", ".png", ".gif", ".bmp", ".tiff"];
+            string[] imageExtensions = [".jpg", ".jpeg", ".png", ".bmp", ".tiff"];
             return Array.IndexOf(imageExtensions, extension) != -1;
         }
 
