@@ -19,7 +19,6 @@ namespace Image_Optimizer_By_Vitos
         public ImagesFormater Backup()
         {
             Log log = new("Initializing Backup", ImagesFolder.Count, 0);
-            log.ProgressBar();
             foreach (string imageFolder in ImagesFolder)
             {
                 log.ProgressBar();
@@ -55,7 +54,6 @@ namespace Image_Optimizer_By_Vitos
             if (File.Exists(newFilePath)) return;
             using (Image image = await Image.LoadAsync(imageFolder))
             {
-
                 WebpEncoder encoder = new() { Quality = 75 };
                 if (MaxResolution != 0 && (image.Width > MaxResolution || image.Height > MaxResolution))
                 {
@@ -65,18 +63,14 @@ namespace Image_Optimizer_By_Vitos
                         x.AutoOrient();
                     });
                 }
-                await Task.Run(() =>
-                {
-                    image.SaveAsWebpAsync(newFilePath, encoder);
-                    log.ProgressBar();
-                });
+                await image.SaveAsWebpAsync(newFilePath, encoder);
+                log.ProgressBar();
             }
         }
 
         public async Task<ImagesFormater> FormatAll()
         {
             Log log = new("Formating Images", ImagesFolder.Count, 1);
-            log.ProgressBar();
             var processingTasks = ImagesFolder.Select(imageFolder => ProcessImageAsync(imageFolder, log));
             await Task.WhenAll(processingTasks);
             Console.Clear();
@@ -86,7 +80,6 @@ namespace Image_Optimizer_By_Vitos
         public ImagesFormater RemoveOriginalImages()
         {
             Log log = new("Removing old trash", ImagesFolder.Count, 2);
-            log.ProgressBar();
             foreach (string imageFolder in ImagesFolder)
             {
                 log.ProgressBar();

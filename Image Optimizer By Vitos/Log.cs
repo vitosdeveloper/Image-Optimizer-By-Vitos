@@ -17,6 +17,7 @@ namespace Image_Optimizer_By_Vitos
             ProgressLength = progressLength;
             Progress = 0;
             Stage = stage;
+            ProgressBar();
         }
 
         public static char ShowResizeOptions()
@@ -37,8 +38,7 @@ namespace Image_Optimizer_By_Vitos
                 pressedKey = Console.ReadKey().KeyChar;
             };
             ResolutionOptions();
-            while (!optionsList.Contains(pressedKey) && pressedKey != '0')
-                ResolutionOptions(true);
+            while (!optionsList.Contains(pressedKey)) ResolutionOptions(true);
             Console.Clear();
             return pressedKey;
         }
